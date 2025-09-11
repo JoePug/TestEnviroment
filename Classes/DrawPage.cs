@@ -12,7 +12,7 @@ namespace TestEnviroment
         Brush brush = Brushes.Black;
         Font theFont = new Font("Comic Sans MS", 16, FontStyle.Bold | FontStyle.Underline);
         string text = "ON CALL  SCHEDULE";
-        Sites? site;
+        //Sites? site;
         float dpiScale; //had to fix the fonts with this
 
         public DrawPage()
@@ -24,27 +24,25 @@ namespace TestEnviroment
             //g.PageUnit = GraphicsUnit.Point; //not working for me
             //g.PageScale = 1.0f;
             dpiScale = g.DpiY / 96f;  // 96 is the default DPI
+            CreateOnCallLog();
         }
 
-        public Bitmap CreateOnCallLog(Sites _site) //only gonna draw one page so no need to make it do anything else
+        public Bitmap CreateOnCallLog() //only gonna draw one page so no need to make it do anything else
         {  
-            site = _site;
+            g.DrawRectangle(new Pen(Color.Black), 30, 30, 775, 1000); //Temp Box - Draw within this box to be safe with most printers
 
-            //g.DrawRectangle(new Pen(Color.Black), 30, 30, 775, 1000); //Temp Box - Draw within this box to be safe with most printers
-
-            WriteData();
+           
 
             return (Bitmap)bmp.Clone();
         }
 
-        private void WriteData()
+        public void Dispose()
         {
-            WriteTopPart();
-            WriteFifteenDates();
-            WriteStaffNameAndNumbers();
-            WriteBottomLine();
+            g?.Dispose();
+            bmp?.Dispose();
         }
-
+        
+        /*
         private void WriteTopPart()
         {
             x = 405;
@@ -156,11 +154,6 @@ namespace TestEnviroment
                 y += (int)g.MeasureString(text, theFont).Height;
             }
         }
-
-        public void Dispose()
-        {
-            g?.Dispose();
-            bmp?.Dispose();
-        }
+        */
     }
 }

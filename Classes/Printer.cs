@@ -31,7 +31,7 @@ namespace TestEnviroment
             var printDoc = new PrintDocument();
             printDoc.PrinterSettings = printerSettings;
             printDoc.PrinterSettings.Copies = 1;
-            printDoc.DocumentName = "On-Call_Log";
+            printDoc.DocumentName = "TestEnviorment";
 
             printDoc.PrintPage += (sender, e) =>
             {

@@ -1,3 +1,4 @@
+
 namespace TestEnviroment
 {
     public partial class Form1 : Form
@@ -6,7 +7,15 @@ namespace TestEnviroment
         {
             InitializeComponent();
 
-            //just gonna stub this in here
+            Print();
+            
+        }
+
+        private void Print()
+        {
+            Printer print = new Printer(new DrawPage().CreateOnCallLog());
+            print.Print();
+
         }
     }
 }
