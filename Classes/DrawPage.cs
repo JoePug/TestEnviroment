@@ -31,9 +31,54 @@ namespace TestEnviroment
         {  
             g.DrawRectangle(new Pen(Color.Black), 30, 30, 775, 1000); //Temp Box - Draw within this box to be safe with most printers
 
-           
+            TestWrite();
 
             return (Bitmap)bmp.Clone();
+        }
+
+        private void TestWrite()
+        {
+            int x = 100;
+            int y = 100;
+            int width = 200;
+            int height = 100;
+            int fontSize = 26;
+            //string text = "I would like to fit this entire text into that box automatically, without any issues. What if I add some more words to this?";
+            string text = "This";
+            Font theFont = new Font("Times New Roman", fontSize / dpiScale, FontStyle.Regular);
+            Brush brush = Brushes.Black;
+
+            g.DrawRectangle(new Pen(Color.Black), x, y, width, height);
+
+
+            PrintTextInRectangle(new RectangleF(x, y, width, height), text, theFont, brush);
+        }
+
+        void PrintTextInRectangle(RectangleF rect, string text, Font baseFont, Brush brush)
+        {
+            StringFormat format = new StringFormat
+            {
+                Alignment = StringAlignment.Near,
+                LineAlignment = StringAlignment.Near,
+                FormatFlags = StringFormatFlags.LineLimit
+            };
+
+            // Measure how much text fits
+            SizeF size = g.MeasureString(text, baseFont, rect.Size, format);
+
+            // Optional: shrink font if it overflows
+            System.Diagnostics.Debug.WriteLine("Size: " + size.Height.ToString());
+            System.Diagnostics.Debug.WriteLine("Rect: " + rect.Height.ToString());
+            System.Diagnostics.Debug.WriteLine("Font: " + baseFont.Size.ToString());
+
+            while (size.Height > rect.Height && baseFont.Size > 4)
+            {
+                baseFont = new Font(baseFont.FontFamily, baseFont.Size - 1, baseFont.Style);
+                size = g.MeasureString(text, baseFont, rect.Size, format);
+                System.Diagnostics.Debug.WriteLine("***** " + baseFont.Size.ToString());
+            }            
+
+            g.DrawString(text, baseFont, brush, rect, format);
         }
 
         public void Dispose()
