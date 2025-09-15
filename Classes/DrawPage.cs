@@ -43,8 +43,8 @@ namespace TestEnviroment
             int width = 200;
             int height = 100;
             int fontSize = 26;
-            //string text = "I would like to fit this entire text into that box automatically, without any issues. What if I add some more words to this?";
-            string text = "This";
+            string text = "I would like to fit this entire text into that box automatically, without any issues. What if I add some more words to this?";
+            //string text = "This";
             Font theFont = new Font("Times New Roman", fontSize / dpiScale, FontStyle.Regular);
             Brush brush = Brushes.Black;
 
@@ -60,7 +60,7 @@ namespace TestEnviroment
             {
                 Alignment = StringAlignment.Near,
                 LineAlignment = StringAlignment.Near,
-                FormatFlags = StringFormatFlags.LineLimit
+                //FormatFlags = StringFormatFlags.LineLimit
             };
 
             // Measure how much text fits
@@ -69,7 +69,7 @@ namespace TestEnviroment
             // Optional: shrink font if it overflows
             System.Diagnostics.Debug.WriteLine("Size: " + size.Height.ToString());
             System.Diagnostics.Debug.WriteLine("Rect: " + rect.Height.ToString());
-            System.Diagnostics.Debug.WriteLine("Font: " + baseFont.Size.ToString());
+            System.Diagnostics.Debug.WriteLine("Font: " + baseFont.Size.ToString()); 
 
             while (size.Height > rect.Height && baseFont.Size > 4)
             {
@@ -79,6 +79,79 @@ namespace TestEnviroment
             }            
 
             g.DrawString(text, baseFont, brush, rect, format);
+        }
+
+        void MakeStringFit(string text, Font baseFont, RectangleF rect)
+        {
+            string[] words = text.Split(' ');
+            List<string> lines = new List<string>();
+            string currentLine = "";
+
+
+            //Make sure text fits in the rect in the first place, height wise
+            while (g.MeasureString(text, baseFont).Height > rect.Height)
+            {
+                baseFont = new Font(baseFont.FontFamily, baseFont.Size - 1, baseFont.Style);
+                System.Diagnostics.Debug.WriteLine("***** " + baseFont.Size.ToString());
+            }
+
+            //generate lines based on width of rect
+            foreach (string word in words)
+            {
+                string testLine = string.IsNullOrEmpty(currentLine) ? word : currentLine + " " + word;
+                if(g.MeasureString(testLine, baseFont).Width > rect.Width)
+                {
+                    currentLine = testLine;
+                }
+                else
+                {
+                    lines.Add(currentLine);
+                    currentLine = word;
+                }//todo - should work, what happens when you get to the last one?
+            }
+            //do the combined lines exceed the height of the rect?
+
+            //use smaller font
+
+            //stop at 4 point or when it fits
+
+            //need to return font, and lines and if it worked or not
+
+        }
+
+        float MeasureMultilineHeight(Graphics g, string text, Font font, float maxWidth)
+        {
+            StringFormat format = new StringFormat
+            {
+                FormatFlags = StringFormatFlags.MeasureTrailingSpaces,
+                Trimming = StringTrimming.Word
+            };
+
+            string[] words = text.Split(' ');
+            List<string> lines = new List<string>();
+            string currentLine = "";
+
+            foreach (var word in words)
+            {
+                string testLine = string.IsNullOrEmpty(currentLine) ? word : currentLine + " " + word;
+                SizeF testSize = g.MeasureString(testLine, font, new SizeF(maxWidth, float.MaxValue), format);
+
+                if (testSize.Width > maxWidth && !string.IsNullOrEmpty(currentLine))
+                {
+                    lines.Add(currentLine);
+                    currentLine = word;
+                }
+                else
+                {
+                    currentLine = testLine;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(currentLine))
+                lines.Add(currentLine);
+
+            float lineHeight = font.GetHeight(g);
+            return lines.Count * lineHeight;
         }
 
         public void Dispose()
