@@ -95,11 +95,22 @@ namespace TestEnviroment
                 System.Diagnostics.Debug.WriteLine("***** " + baseFont.Size.ToString());
             }
 
+            int count = words.Count();
             //generate lines based on width of rect
             foreach (string word in words)
             {
+                count--; //hopefully not one off
+                if (g.MeasureString(word, baseFont).Width > rect.Width)
+                {
+                    //If the one word is bigger, lower font and exit I guess
+                    lines.Clear();
+                    currentLine = "";
+                    baseFont = new Font(baseFont.FontFamily, baseFont.Size - 1, baseFont.Style);
+                    break;
+                }
+
                 string testLine = string.IsNullOrEmpty(currentLine) ? word : currentLine + " " + word;
-                if(g.MeasureString(testLine, baseFont).Width > rect.Width)
+                if(g.MeasureString(testLine, baseFont).Width < rect.Width)
                 {
                     currentLine = testLine;
                 }
@@ -107,8 +118,14 @@ namespace TestEnviroment
                 {
                     lines.Add(currentLine);
                     currentLine = word;
-                }//todo - should work, what happens when you get to the last one?
+                }
+
+                if(count == 0)
+                {
+                    lines.Add(currentLine);
+                }
             }
+            //Todo need a while loop to get to the right size font
             //do the combined lines exceed the height of the rect?
 
             //use smaller font
