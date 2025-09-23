@@ -96,44 +96,57 @@ namespace TestEnviroment
             }
 
             int count = words.Count();
+            bool exitWhile = false;
             //generate lines based on width of rect
-            foreach (string word in words)
+            while (!exitWhile)
             {
-                count--; //hopefully not one off
-                if (g.MeasureString(word, baseFont).Width > rect.Width)
+                if (baseFont.Size > 4) break; //for now as I need to figure out what to do when I exit
+
+                foreach (string word in words)
                 {
-                    //If the one word is bigger, lower font and exit I guess
+                    count--; //hopefully not one off
+                    if (g.MeasureString(word, baseFont).Width > rect.Width)
+                    {
+                        //If the one word is bigger, lower font and exit I guess
+                        lines.Clear();
+                        currentLine = "";
+                        count = words.Count();
+                        baseFont = new Font(baseFont.FontFamily, baseFont.Size - 1, baseFont.Style);
+                        break;
+                    }
+
+                    string testLine = string.IsNullOrEmpty(currentLine) ? word : currentLine + " " + word;
+                    if (g.MeasureString(testLine, baseFont).Width < rect.Width)
+                    {
+                        currentLine = testLine;
+                    }
+                    else
+                    {
+                        lines.Add(currentLine);
+                        currentLine = word;
+                    }
+
+                    if (count == 0)
+                    {
+                        lines.Add(currentLine);
+                    }
+                }
+
+                if (g.MeasureString(lines[0], baseFont).Height * lines.Count < rect.Height)
+                {
+                    exitWhile = true;
+                }
+                else //loop again  
+                {                                  
                     lines.Clear();
                     currentLine = "";
+                    count = words.Count();
                     baseFont = new Font(baseFont.FontFamily, baseFont.Size - 1, baseFont.Style);
-                    break;
-                }
-
-                string testLine = string.IsNullOrEmpty(currentLine) ? word : currentLine + " " + word;
-                if(g.MeasureString(testLine, baseFont).Width < rect.Width)
-                {
-                    currentLine = testLine;
-                }
-                else
-                {
-                    lines.Add(currentLine);
-                    currentLine = word;
-                }
-
-                if(count == 0)
-                {
-                    lines.Add(currentLine);
                 }
             }
-            //Todo need a while loop to get to the right size font
-            //do the combined lines exceed the height of the rect?
-
-            //use smaller font
-
             //stop at 4 point or when it fits
 
             //need to return font, and lines and if it worked or not
-
         }
 
         float MeasureMultilineHeight(Graphics g, string text, Font font, float maxWidth)
