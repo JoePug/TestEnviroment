@@ -1,5 +1,7 @@
 ﻿
 
+using static System.Windows.Forms.DataFormats;
+
 namespace TestEnviroment
 {
     public class DrawPage : IDisposable
@@ -14,6 +16,8 @@ namespace TestEnviroment
         string text = "ON CALL  SCHEDULE";
         //Sites? site;
         float dpiScale; //had to fix the fonts with this
+
+        List<string> linesOfText = new List<string>(); //for textboxes
 
         public DrawPage()
         {
@@ -43,15 +47,34 @@ namespace TestEnviroment
             int width = 200;
             int height = 100;
             int fontSize = 26;
-            string text = "I would like to fit this entire text into that box automatically, without any issues. What if I add some more words to this?";
+            string text = "I would like to fit this entire text into that box automatically, without any issues.";
             //string text = "This";
             Font theFont = new Font("Times New Roman", fontSize / dpiScale, FontStyle.Regular);
             Brush brush = Brushes.Black;
 
             g.DrawRectangle(new Pen(Color.Black), x, y, width, height);
 
+            if(MakeStringFit(text, theFont, new RectangleF(x, y, width, height)))
+            {
+                PrintTextInRectangle(new RectangleF(x, y, width, height));
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("***** It Didn't Work *****");
+            }
+        }
 
-            PrintTextInRectangle(new RectangleF(x, y, width, height), text, theFont, brush);
+        void PrintTextInRectangle(RectangleF rect)
+        {
+            int height = (int)g.MeasureString(linesOfText[0], theFont).Height;
+            int _x = (int)rect.X;
+            int _y = (int)rect.Y;
+
+            foreach(string line in linesOfText)
+            {
+                g.DrawString(line, theFont, brush, x, y);
+                _y = y + height;
+            }
         }
 
         void PrintTextInRectangle(RectangleF rect, string text, Font baseFont, Brush brush)
@@ -81,12 +104,12 @@ namespace TestEnviroment
             g.DrawString(text, baseFont, brush, rect, format);
         }
 
-        void MakeStringFit(string text, Font baseFont, RectangleF rect)
+        bool MakeStringFit(string text, Font baseFont, RectangleF rect)
         {
             string[] words = text.Split(' ');
             List<string> lines = new List<string>();
             string currentLine = "";
-
+            bool success = false;
 
             //Make sure text fits in the rect in the first place, height wise
             while (g.MeasureString(text, baseFont).Height > rect.Height)
@@ -100,7 +123,7 @@ namespace TestEnviroment
             //generate lines based on width of rect
             while (!exitWhile)
             {
-                if (baseFont.Size > 4) break; //for now as I need to figure out what to do when I exit
+                //if (baseFont.Size < 4) break; //for now as I need to figure out what to do when I exit
 
                 foreach (string word in words)
                 {
@@ -135,6 +158,9 @@ namespace TestEnviroment
                 if (g.MeasureString(lines[0], baseFont).Height * lines.Count < rect.Height)
                 {
                     exitWhile = true;
+                    success = true;
+                    linesOfText = lines;
+                    theFont = baseFont;
                 }
                 else //loop again  
                 {                                  
@@ -142,11 +168,14 @@ namespace TestEnviroment
                     currentLine = "";
                     count = words.Count();
                     baseFont = new Font(baseFont.FontFamily, baseFont.Size - 1, baseFont.Style);
+
+                    if(baseFont.Size <= 4) exitWhile = true; //failed to fit text in rect
+                    
                 }
             }
-            //stop at 4 point or when it fits
 
             //need to return font, and lines and if it worked or not
+            return success;
         }
 
         float MeasureMultilineHeight(Graphics g, string text, Font font, float maxWidth)
