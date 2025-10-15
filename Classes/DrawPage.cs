@@ -16,11 +16,14 @@ namespace TestEnviroment
         string text = "ON CALL  SCHEDULE";
         //Sites? site;
         float dpiScale; //had to fix the fonts with this
+        RichTextBox box;
 
         List<string> linesOfText = new List<string>(); //for textboxes
 
-        public DrawPage()
+        public DrawPage(RichTextBox _box)
         {
+            box = _box;
+
             bmp = new Bitmap(850, 1100);
             bmp.SetResolution(300,300);
             g = Graphics.FromImage(bmp);
@@ -28,7 +31,7 @@ namespace TestEnviroment
             //g.PageUnit = GraphicsUnit.Point; //not working for me
             //g.PageScale = 1.0f;
             dpiScale = g.DpiY / 96f;  // 96 is the default DPI
-            CreateOnCallLog();
+            //CreateOnCallLog();
         }
 
         public Bitmap CreateOnCallLog() //only gonna draw one page so no need to make it do anything else
@@ -54,7 +57,9 @@ namespace TestEnviroment
 
             g.DrawRectangle(new Pen(Color.Black), x, y, width, height);
 
-            if(MakeStringFit(text, theFont, new RectangleF(x, y, width, height)))
+            Log("Testing.....");
+
+            if (MakeStringFit(text, theFont, new RectangleF(x, y, width, height)))
             {
                 PrintTextInRectangle(new RectangleF(x, y, width, height));
             }
@@ -90,15 +95,15 @@ namespace TestEnviroment
             SizeF size = g.MeasureString(text, baseFont, rect.Size, format);
 
             // Optional: shrink font if it overflows
-            System.Diagnostics.Debug.WriteLine("Size: " + size.Height.ToString());
-            System.Diagnostics.Debug.WriteLine("Rect: " + rect.Height.ToString());
-            System.Diagnostics.Debug.WriteLine("Font: " + baseFont.Size.ToString()); 
+            Log("Size: " + size.Height.ToString());
+            Log("Rect: " + rect.Height.ToString());
+            Log("Font: " + baseFont.Size.ToString()); 
 
             while (size.Height > rect.Height && baseFont.Size > 4)
             {
                 baseFont = new Font(baseFont.FontFamily, baseFont.Size - 1, baseFont.Style);
                 size = g.MeasureString(text, baseFont, rect.Size, format);
-                System.Diagnostics.Debug.WriteLine("***** " + baseFont.Size.ToString());
+                Log("***** " + baseFont.Size.ToString());
             }            
 
             g.DrawString(text, baseFont, brush, rect, format);
@@ -115,7 +120,7 @@ namespace TestEnviroment
             while (g.MeasureString(text, baseFont).Height > rect.Height)
             {
                 baseFont = new Font(baseFont.FontFamily, baseFont.Size - 1, baseFont.Style);
-                System.Diagnostics.Debug.WriteLine("***** " + baseFont.Size.ToString());
+                Log("***** " + baseFont.Size.ToString());
             }
 
             int count = words.Count();
@@ -217,6 +222,11 @@ namespace TestEnviroment
         {
             g?.Dispose();
             bmp?.Dispose();
+        }
+
+        private void Log(string message)
+        {
+            box.AppendText(message + Environment.NewLine);
         }
         
         /*
