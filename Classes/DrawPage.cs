@@ -51,7 +51,7 @@ namespace TestEnviroment
             int height = 100;
             int fontSize = 26;
             string text = "I would like to fit this entire text into that box automatically, without any issues.";
-            //string text = "This";
+            //string text = "One Two Three Four Five Six Seven Eight Nine Ten Eleven Twelve Thirteen Fourteen Fifteen";
             Font theFont = new Font("Times New Roman", fontSize / dpiScale, FontStyle.Regular);
             Brush brush = Brushes.Black;
 
@@ -65,7 +65,7 @@ namespace TestEnviroment
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("***** It Didn't Work *****");
+                Log("***** It Didn't Work ***** Font size is: " + theFont.Size.ToString());
             }
         }
 
@@ -77,36 +77,9 @@ namespace TestEnviroment
 
             foreach(string line in linesOfText)
             {
-                g.DrawString(line, theFont, brush, x, y);
-                _y = y + height;
+                g.DrawString(line, theFont, brush, _x, _y);
+                _y = _y + height;
             }
-        }
-
-        void PrintTextInRectangle(RectangleF rect, string text, Font baseFont, Brush brush)
-        {
-            StringFormat format = new StringFormat
-            {
-                Alignment = StringAlignment.Near,
-                LineAlignment = StringAlignment.Near,
-                //FormatFlags = StringFormatFlags.LineLimit
-            };
-
-            // Measure how much text fits
-            SizeF size = g.MeasureString(text, baseFont, rect.Size, format);
-
-            // Optional: shrink font if it overflows
-            Log("Size: " + size.Height.ToString());
-            Log("Rect: " + rect.Height.ToString());
-            Log("Font: " + baseFont.Size.ToString()); 
-
-            while (size.Height > rect.Height && baseFont.Size > 4)
-            {
-                baseFont = new Font(baseFont.FontFamily, baseFont.Size - 1, baseFont.Style);
-                size = g.MeasureString(text, baseFont, rect.Size, format);
-                Log("***** " + baseFont.Size.ToString());
-            }            
-
-            g.DrawString(text, baseFont, brush, rect, format);
         }
 
         bool MakeStringFit(string text, Font baseFont, RectangleF rect)
@@ -123,6 +96,17 @@ namespace TestEnviroment
                 Log("***** " + baseFont.Size.ToString());
             }
 
+            //Make sure each word is smaller then the lenght of the box            
+            foreach(string word in words)
+            {                
+                while (g.MeasureString(word, baseFont).Width > rect.Width)
+                {
+                    Log(word);
+                    baseFont = new Font(baseFont.FontFamily, baseFont.Size - 1, baseFont.Style);
+                    Log(baseFont.Size.ToString());
+                }
+            }            
+
             int count = words.Count();
             bool exitWhile = false;
             //generate lines based on width of rect
@@ -133,15 +117,19 @@ namespace TestEnviroment
                 foreach (string word in words)
                 {
                     count--; //hopefully not one off
-                    if (g.MeasureString(word, baseFont).Width > rect.Width)
-                    {
-                        //If the one word is bigger, lower font and exit I guess
-                        lines.Clear();
-                        currentLine = "";
-                        count = words.Count();
-                        baseFont = new Font(baseFont.FontFamily, baseFont.Size - 1, baseFont.Style);
-                        break;
-                    }
+
+                    //Didn't need this here, so far as I corrected it before
+                    //if (g.MeasureString(word, baseFont).Width > rect.Width)
+                    //{
+                    //    Log(word);
+
+                    //    //If the one word is bigger, lower font and exit I guess
+                    //    lines.Clear();
+                    //    currentLine = "";
+                    //    count = words.Count();
+                    //    baseFont = new Font(baseFont.FontFamily, baseFont.Size - 1, baseFont.Style);
+                    //    break;
+                    //}
 
                     string testLine = string.IsNullOrEmpty(currentLine) ? word : currentLine + " " + word;
                     if (g.MeasureString(testLine, baseFont).Width < rect.Width)
@@ -174,13 +162,44 @@ namespace TestEnviroment
                     count = words.Count();
                     baseFont = new Font(baseFont.FontFamily, baseFont.Size - 1, baseFont.Style);
 
-                    if(baseFont.Size <= 4) exitWhile = true; //failed to fit text in rect
+                    if (baseFont.Size <= 4)
+                    {
+                        Log("Text is to long - Font Size: " + baseFont.Size.ToString());
+                        exitWhile = true; //failed to fit text in rect
+                    }
                     
                 }
             }
 
             //need to return font, and lines and if it worked or not
             return success;
+        }
+
+        void PrintTextInRectangle(RectangleF rect, string text, Font baseFont, Brush brush)
+        {
+            StringFormat format = new StringFormat
+            {
+                Alignment = StringAlignment.Near,
+                LineAlignment = StringAlignment.Near,
+                //FormatFlags = StringFormatFlags.LineLimit
+            };
+
+            // Measure how much text fits
+            SizeF size = g.MeasureString(text, baseFont, rect.Size, format);
+
+            // Optional: shrink font if it overflows
+            Log("Size: " + size.Height.ToString());
+            Log("Rect: " + rect.Height.ToString());
+            Log("Font: " + baseFont.Size.ToString());
+
+            while (size.Height > rect.Height && baseFont.Size > 4)
+            {
+                baseFont = new Font(baseFont.FontFamily, baseFont.Size - 1, baseFont.Style);
+                size = g.MeasureString(text, baseFont, rect.Size, format);
+                Log("***** " + baseFont.Size.ToString());
+            }
+
+            g.DrawString(text, baseFont, brush, rect, format);
         }
 
         float MeasureMultilineHeight(Graphics g, string text, Font font, float maxWidth)
