@@ -49,9 +49,9 @@ namespace TestEnviroment
             int y = 100;
             int width = 200;
             int height = 100;
-            int fontSize = 26;
-            string text = "I would like to fit this entire text into that box automatically, without any issues.";
-            //string text = "One Two Three Four Five Six Seven Eight Nine Ten Eleven Twelve Thirteen Fourteen Fifteen";
+            int fontSize = 76;
+            //string text = "I would like to fit this entire text into that box automatically, without any issues.";
+            string text = "One Two Three Four Five Six Seven Eight Nine Ten Eleven Twelve Thirteen Fourteen Fifteen Sixteen";
             Font theFont = new Font("Times New Roman", fontSize / dpiScale, FontStyle.Regular);
             Brush brush = Brushes.Black;
 
@@ -61,6 +61,7 @@ namespace TestEnviroment
 
             if (MakeStringFit(text, theFont, new RectangleF(x, y, width, height)))
             {
+                Log("Final: " + theFont.Size.ToString());
                 PrintTextInRectangle(new RectangleF(x, y, width, height));
             }
             else
@@ -93,7 +94,7 @@ namespace TestEnviroment
             while (g.MeasureString(text, baseFont).Height > rect.Height)
             {
                 baseFont = new Font(baseFont.FontFamily, baseFont.Size - 1, baseFont.Style);
-                Log("***** " + baseFont.Size.ToString());
+                Log("Height ***** " + baseFont.Size.ToString());
             }
 
             //Make sure each word is smaller then the lenght of the box            
@@ -162,7 +163,7 @@ namespace TestEnviroment
                     count = words.Count();
                     baseFont = new Font(baseFont.FontFamily, baseFont.Size - 1, baseFont.Style);
 
-                    if (baseFont.Size <= 4)
+                    if (baseFont.Size <= 3)
                     {
                         Log("Text is to long - Font Size: " + baseFont.Size.ToString());
                         exitWhile = true; //failed to fit text in rect
