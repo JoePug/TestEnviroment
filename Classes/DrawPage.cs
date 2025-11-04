@@ -52,12 +52,12 @@ namespace TestEnviroment
             int fontSize = 76;
             //string text = "I would like to fit this entire text into that box automatically, without any issues.";
             string text = "One Two Three Four Five Six Seven Eight Nine Ten Eleven Twelve Thirteen Fourteen Fifteen Sixteen";
-            Font theFont = new Font("Times New Roman", fontSize / dpiScale, FontStyle.Regular);
+            theFont = new Font("Times New Roman", fontSize / dpiScale, FontStyle.Regular);
             Brush brush = Brushes.Black;
 
             g.DrawRectangle(new Pen(Color.Black), x, y, width, height);
 
-            Log("Testing.....");
+            Log("Testing..... " + theFont.Size.ToString());
 
             if (MakeStringFit(text, theFont, new RectangleF(x, y, width, height)))
             {
@@ -155,6 +155,7 @@ namespace TestEnviroment
                     success = true;
                     linesOfText = lines;
                     theFont = baseFont;
+                    Log("Last: " + theFont.Size.ToString() +  " *** " + baseFont.Size.ToString());
                 }
                 else //loop again  
                 {                                  

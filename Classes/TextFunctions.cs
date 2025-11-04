@@ -18,6 +18,25 @@ namespace TestEnviroment
 
         }
 
+        #region Psudo Code
+
+        /*
+         * split text into a string array of words
+         * 
+         * loop to make sure each word will fit into the length of the box (decrease font till the current word fits)
+         * - check for minimun font size. Break (or return if hit)
+         * 
+         * while loop from font size to minimun font size         
+         * - foreach loop will attempt to fit words in box at current font
+         * -- any error will cause the font size to drop by .5, break the loop and start over again.
+         * 
+         * 
+         * 
+         * 
+         */
+
+        #endregion
+
         bool MakeStringFit(string text, Font baseFont, RectangleF rect)
         {
             string[] words = text.Split(' ');
